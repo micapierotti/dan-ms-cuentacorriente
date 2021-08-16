@@ -1,7 +1,8 @@
 package dan.tp2021.cuentacorriente.domain;
 
+import javax.persistence.Entity;
 import java.time.Instant;
-
+@Entity
 public class Pago {
 
 	private Integer id;

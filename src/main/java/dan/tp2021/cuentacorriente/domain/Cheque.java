@@ -1,7 +1,10 @@
 package dan.tp2021.cuentacorriente.domain;
 
+import javax.persistence.*;
 import java.time.Instant;
 
+@Entity
+@DiscriminatorValue(value = "CHEQUE")
 public class Cheque extends MedioPago {
 
 	private Integer nroCheque;

@@ -1,5 +1,10 @@
 package dan.tp2021.cuentacorriente.domain;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+@Entity
+@DiscriminatorValue(value = "TRANSFERENCIA")
 public class Transferencia extends MedioPago {
 
 	private String cbuOrigen;
