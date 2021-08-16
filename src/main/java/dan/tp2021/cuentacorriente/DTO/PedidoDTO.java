@@ -11,5 +11,5 @@ public class PedidoDTO {
     private Instant fechaPedido;
     private ObraDTO obra;
     private List<DetallePedidoDTO> detalle;
-    private EstadoPedido estado;
+    //private EstadoPedido estado;
 }

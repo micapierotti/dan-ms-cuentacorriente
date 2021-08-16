@@ -37,9 +37,6 @@ public class PagoController {
 
     @GetMapping("/estado/{clienteId}")
     public ResponseEntity<?> getEstadoCliente(@PathVariable Integer clienteId) {
-
-
-
-
+        return null;
     }
 }

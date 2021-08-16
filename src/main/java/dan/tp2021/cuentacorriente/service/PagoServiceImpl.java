@@ -16,6 +16,7 @@ public class PagoServiceImpl implements PagoService{
     public Pago realizarPago(Pago pago) {
         MedioPago medio = pago.getMedio();
 
+        /*
         switch (medio.getTipo()){
             case "EFECTIVO":
 
@@ -28,7 +29,7 @@ public class PagoServiceImpl implements PagoService{
                 break;
         }
 
-
+       */
         return pago;
     }
 
@@ -36,6 +37,7 @@ public class PagoServiceImpl implements PagoService{
         String url = REST_API_PEDIDO_URL + GET_PEDIDOS_CLIENTE + "/"+ clienteId;
         WebClient client = WebClient.create(url);
 
+        /*
         Mono<List<Reader>> response = webClient.get()
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
@@ -46,7 +48,7 @@ public class PagoServiceImpl implements PagoService{
                 .map(Reader::getFavouriteBook)
                 .collect(Collectors.toList());
 
-
+        */
 
     }
 
