@@ -1,15 +1,30 @@
 package dan.tp2021.cuentacorriente.DTO;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.*;
-import java.time.Instant;
 import java.util.List;
 
 public class PedidoDTO {
     private Integer id;
-    private Instant fechaPedido;
-    private ObraDTO obra;
     private List<DetallePedidoDTO> detalle;
-    //private EstadoPedido estado;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public List<DetallePedidoDTO> getDetalle() {
+        return detalle;
+    }
+
+    public void setDetalle(List<DetallePedidoDTO> detalle) {
+        this.detalle = detalle;
+    }
+
+    public PedidoDTO(Integer id, List<DetallePedidoDTO> detalle) {
+        this.id = id;
+        this.detalle = detalle;
+    }
+    public PedidoDTO(){ }
 }
