@@ -1,9 +1,12 @@
 package dan.tp2021.cuentacorriente.domain;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
+@JsonTypeName("cheque")
 @DiscriminatorValue(value = "CHEQUE")
 public class Cheque extends MedioPago {
 

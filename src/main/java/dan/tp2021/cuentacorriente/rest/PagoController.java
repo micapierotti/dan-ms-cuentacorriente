@@ -10,10 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class PagoController {
 
-    /*
-    a. Registra un pago de un cliente
-     */
-
     private PagoService pagoService;
 
     public PagoController(PagoService pago){
@@ -23,20 +19,18 @@ public class PagoController {
     @PostMapping("/pago")
     public ResponseEntity<?> realizarPago(@RequestBody Pago pago){
 
-        pagoService.realizarPago(pago);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        if(pagoService.realizarPago(pago) != null){
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
     }
 
 
-    /*
-     b. Retorna el estado de cuenta corriente de un cliente con un detalle de
-        i. Pagos
-        ii. Facturas (pedidos enviados)
-     */
-
     @GetMapping("/estado/{clienteId}")
     public ResponseEntity<?> getEstadoCliente(@PathVariable Integer clienteId) {
-        return null;
+        return new ResponseEntity<>(pagoService.estado(clienteId), HttpStatus.OK);
     }
 }

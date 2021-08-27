@@ -1,11 +1,20 @@
 package dan.tp2021.cuentacorriente.domain;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.persistence.*;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+
+		@JsonSubTypes.Type(value = Efectivo.class, name = "efectivo"),
+		@JsonSubTypes.Type(value = Transferencia.class, name = "transferencia"),
+		@JsonSubTypes.Type(value = Cheque.class, name = "cheque")
+})
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="tipo_pago",
-		discriminatorType = DiscriminatorType.INTEGER)
+		discriminatorType = DiscriminatorType.STRING)
 public abstract class MedioPago {
 
 	@Id
