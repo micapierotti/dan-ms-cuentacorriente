@@ -21,7 +21,7 @@ public abstract class MedioPago {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected Integer id;
 	protected String observacion;
-	protected String tipo;
+
 
 	public Integer getId() {
 		return id;
@@ -36,11 +36,11 @@ public abstract class MedioPago {
 		this.observacion = observacion;
 	}
 
-	public String getTipo() {
-		return tipo;
+	public MedioPago() {
 	}
 
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
+	public MedioPago(Integer id, String observacion) {
+		this.id = id;
+		this.observacion = observacion;
 	}
 }

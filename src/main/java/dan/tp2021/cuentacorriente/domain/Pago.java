@@ -13,10 +13,21 @@ public class Pago {
 
 	private Integer idCliente;
 	private Date fechaPago;
-	@OneToOne
+	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "medioPago_id", referencedColumnName = "id")
 	private MedioPago medio;
-	
+
+
+	public Pago(Integer idCliente, Date fechaPago, MedioPago medio) {
+		this.idCliente = idCliente;
+		this.fechaPago = fechaPago;
+		this.medio = medio;
+	}
+
+	public Pago() {
+
+	}
+
 	public Integer getId() {
 		return id;
 	}

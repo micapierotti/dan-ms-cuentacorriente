@@ -1,6 +1,8 @@
 package dan.tp2021.cuentacorriente.rest;
 
+import dan.tp2021.cuentacorriente.DTO.PagoDTO;
 import dan.tp2021.cuentacorriente.domain.Pago;
+import dan.tp2021.cuentacorriente.exception.ConnectionFailException;
 import dan.tp2021.cuentacorriente.service.PagoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +19,10 @@ public class PagoController {
     }
 
     @PostMapping("/pago")
-    public ResponseEntity<?> realizarPago(@RequestBody Pago pago){
-
+    public ResponseEntity<?> realizarPago(@RequestBody PagoDTO pago){
 
         if(pagoService.realizarPago(pago) != null){
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>("Pago Realizado Correctamente", HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -30,7 +31,12 @@ public class PagoController {
 
 
     @GetMapping("/estado/{clienteId}")
-    public ResponseEntity<?> getEstadoCliente(@PathVariable Integer clienteId) {
-        return new ResponseEntity<>(pagoService.estado(clienteId), HttpStatus.OK);
+    public ResponseEntity<?> getEstadoCliente(@PathVariable Integer clienteId) throws ConnectionFailException {
+
+        if(pagoService.estado(clienteId) != null){
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
