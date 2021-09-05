@@ -8,6 +8,8 @@ import dan.tp2021.cuentacorriente.domain.*;
 import dan.tp2021.cuentacorriente.exception.ClientNotFoundException;
 import dan.tp2021.cuentacorriente.exception.ConnectionFailException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class PagoServiceImpl implements PagoService{
 
     private static final String GET_PEDIDOS_CLIENTE = "?clienteId=";
     private static final String REST_API_PEDIDO_URL = "http://localhost:9002/api/pedido/facturasCliente";
+
+    @Autowired
+    CircuitBreakerFactory circuitBreakerFactory;
 
     @Autowired
     private PagoRepository pagoRepository;
@@ -43,27 +48,33 @@ public class PagoServiceImpl implements PagoService{
 
         String url = REST_API_PEDIDO_URL + GET_PEDIDOS_CLIENTE + "/"+ clienteId;
         WebClient client = WebClient.create(url);
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
 
-        try{
-            ResponseEntity<List<PedidoDTO>> result = client.get()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .toEntityList(PedidoDTO.class)
-                    .switchIfEmpty(Mono.error(new ClientNotFoundException(clienteId)))
-                    .block();
+        return circuitBreaker.run(() -> {
+            try{
+                ResponseEntity<List<PedidoDTO>> result = client.get()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .retrieve()
+                        .toEntityList(PedidoDTO.class)
+                        .switchIfEmpty(Mono.error(new ClientNotFoundException(clienteId)))
+                        .block();
 
-            estadoClienteDTO.setFacturas(result.getBody());
-        } catch (Exception e){
-            throw new ConnectionFailException();
-        }
+                estadoClienteDTO.setFacturas(result.getBody());
+            } catch (Exception e){
+                try {
+                    throw new ConnectionFailException();
+                } catch (ConnectionFailException ex) {
+                    ex.printStackTrace();
+                }
+            }
 
-        estadoClienteDTO.setPagos(pagoRepository.findPagoByIdCliente(clienteId));
+            estadoClienteDTO.setPagos(pagoRepository.findPagoByIdCliente(clienteId));
 
-        return estadoClienteDTO;
-
+            return estadoClienteDTO;
+        }, throwable -> defaultEstado());
     }
 
-
-
-
+    private EstadoClienteDTO defaultEstado() {
+        return null;
+    }
 }
