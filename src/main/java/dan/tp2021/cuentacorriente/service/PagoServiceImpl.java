@@ -1,5 +1,6 @@
 package dan.tp2021.cuentacorriente.service;
 
+import dan.tp2021.cuentacorriente.DTO.ClienteDTO;
 import dan.tp2021.cuentacorriente.DTO.EstadoClienteDTO;
 import dan.tp2021.cuentacorriente.DTO.PagoDTO;
 import dan.tp2021.cuentacorriente.DTO.PedidoDTO;
@@ -22,8 +23,10 @@ import java.util.List;
 @Service
 public class PagoServiceImpl implements PagoService{
 
-    private static final String GET_PEDIDOS_CLIENTE = "?clienteId=";
+
     private static final String REST_API_PEDIDO_URL = "http://localhost:9002/api/pedido/facturasCliente";
+    private static final String REST_API_CLIENTE_URL = "http://localhost:9000/api/cliente/";
+    private static final String GET_CLIENTE_BY_ID = "by-id/";
 
     @Autowired
     CircuitBreakerFactory circuitBreakerFactory;
@@ -33,20 +36,38 @@ public class PagoServiceImpl implements PagoService{
 
     @Override
     public Pago realizarPago(PagoDTO pago) {
-        try{
-            Pago pagoToSave = new Pago(pago.getIdCliente(), new Date() , pago.getMedio() );
-            return pagoRepository.save(pagoToSave);
-        } catch (Exception e){
-            //TODO Reemplazar por logger
-            System.out.println("El pago no ha podido ser registrado, intente nuevamente");
-            return null;
-        }
+        String clientUrl = REST_API_CLIENTE_URL +  GET_CLIENTE_BY_ID + pago.getIdCliente();
+        WebClient client = WebClient.create(clientUrl);
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+        return circuitBreaker.run(() -> {
+            try {
+
+                ClienteDTO clientResult = client.get()
+                        .uri(clientUrl).accept(MediaType.APPLICATION_JSON)
+                        .retrieve()
+                        .bodyToMono(ClienteDTO.class)
+                        .block();
+
+                if (clientResult == null) {
+                    throw new RuntimeException("No se encontró el cliente de la obra " + pago.getIdCliente());
+                }
+
+                Pago pagoToSave = new Pago(pago.getIdCliente(), new Date(), pago.getMedio());
+
+                return pagoRepository.save(pagoToSave);
+
+            } catch (Exception e) {
+                //TODO Reemplazar por logger
+                System.out.println("El pago no ha podido ser registrado, intente nuevamente");
+                return null;
+            }
+        }, throwable -> defaultEstadoPago());
     }
 
     public EstadoClienteDTO estado(Integer clienteId) throws ConnectionFailException {
         EstadoClienteDTO estadoClienteDTO = new EstadoClienteDTO();
 
-        String url = REST_API_PEDIDO_URL + GET_PEDIDOS_CLIENTE + "/"+ clienteId;
+        String url = REST_API_PEDIDO_URL +  "/" + clienteId;
         WebClient client = WebClient.create(url);
         CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
 
@@ -59,6 +80,8 @@ public class PagoServiceImpl implements PagoService{
                         .switchIfEmpty(Mono.error(new ClientNotFoundException(clienteId)))
                         .block();
 
+                System.out.println("entro a try");
+                System.out.println(result.getBody());
                 estadoClienteDTO.setFacturas(result.getBody());
             } catch (Exception e){
                 try {
@@ -75,6 +98,10 @@ public class PagoServiceImpl implements PagoService{
     }
 
     private EstadoClienteDTO defaultEstado() {
+        return null;
+    }
+
+    private Pago defaultEstadoPago() {
         return null;
     }
 }
